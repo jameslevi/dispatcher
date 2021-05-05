@@ -24,7 +24,6 @@ class Dispatcher
         'put',
         'patch',
         'delete',
-        'options',
         'head',
     );
 
