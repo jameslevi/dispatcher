@@ -152,7 +152,7 @@ class Dispatcher
     private $events = array(
         'oncreate'                  => null,
         'onbeforemiddleware'        => null,
-        'onmiddlewareexecute'       => null,
+        'onmiddleware'              => null,
         'onmiddlewareabort'         => null,
         'onbeforeaction'            => null,
         'onafteraction'             => null,
@@ -283,9 +283,9 @@ class Dispatcher
      * @param   mixed $callback
      * @return  $this
      */
-    public function onMiddlewareExecute($callback)
+    public function onMiddleware($callback)
     {
-        $this->events['onmiddlewareexecute'] = $callback;
+        $this->events['onmiddleware'] = $callback;
 
         return $this;
     }
