@@ -1,0 +1,18 @@
+{
+    "name": "jameslevi/dispatcher",
+    "description": "Is a simple routing engine for PHP applications.",
+    "type": "library",
+    "license": "MIT",
+    "require": {
+        "jameslevi/objectify": "^1.0",
+        "jameslevi/nest": "^1.0",
+        "jameslevi/string": "^1.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Graphite\\Component\\Dispatcher\\": "src/",
+            "App\\Controller\\": "controller/",
+            "App\\Middleware\\": "middleware/"
+        }
+    }
+}
