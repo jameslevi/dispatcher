@@ -9,9 +9,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Graphite\\Component\\Dispatcher\\": "src/",
-            "App\\Controller\\": "controller/",
-            "App\\Middleware\\": "middleware/"
+            "Graphite\\Component\\Dispatcher\\": "src/"
         }
     }
 }
