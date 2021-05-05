@@ -87,6 +87,27 @@ class Request
     }
 
     /**
+     * Return request parameter from URI.
+     * 
+     * @param   string $name
+     * @return  mixed
+     */
+    public function __get(string $name)
+    {
+        $route = $this->route();
+
+        if(!is_null($route))
+        {
+            $resource = $route['resource'];
+
+            if(array_key_exists($name, $resource))
+            {
+                return $resource[$name];
+            }
+        }
+    }
+
+    /**
      * Return the request method.
      * 
      * @return  string
