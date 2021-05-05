@@ -164,7 +164,7 @@ class Dispatcher
         'onmiddlewareabort'         => null,
         'onbeforeaction'            => null,
         'onafteraction'             => null,
-        'onbeforeredirect'          => null,
+        'onredirect'                => null,
         'onbodysent'                => null,
         'ondestroy'                 => null,
         'onerror'                   => null,
@@ -193,6 +193,13 @@ class Dispatcher
     private $middleware = false;
 
     /**
+     * Redirection route.
+     * 
+     * @var string
+     */
+    private $redirect;
+
+    /**
      * Construct a new instance of dispatcher.
      * 
      * @return  void
@@ -201,6 +208,10 @@ class Dispatcher
     {
         $this->request  = new Request($this);
         $this->response = new Response($this);
+
+        $this->setDefaultErrorCallback(function($request) {
+            return $request->responseMessage();
+        });
     }
 
     /**
@@ -316,6 +327,19 @@ class Dispatcher
     public function onAfterAction($callback)
     {
         $this->events['onafteraction'] = $callback;
+
+        return $this;
+    }
+
+    /**
+     * Event callback when redirection is triggered.
+     * 
+     * @param   mixed $callback
+     * @return  $this
+     */
+    public function onRedirect($callback)
+    {
+        $this->events['onredirect'] = $callback;
 
         return $this;
     }
@@ -588,6 +612,19 @@ class Dispatcher
     }
 
     /**
+     * Redirect route to new route.
+     * 
+     * @param   string $location
+     * @return  $this
+     */
+    public function redirect(string $location)
+    {
+        $this->redirect = $location;
+
+        return $this;
+    }
+
+    /**
      * Execute a closure or a class.
      * 
      * @param   mixed $action
@@ -657,6 +694,16 @@ class Dispatcher
 
         $this->runAfterMiddlewares();
         $this->setHeaders();
+
+        if(!is_null($this->redirect))
+        {
+            $this->runEvent('onredirect', array(
+                $this->request,
+            ));
+
+            header('location: ' . $this->redirect);
+        }
+
         $this->sendBody($body);
         $this->terminate();
     }
@@ -840,13 +887,13 @@ class Dispatcher
             $this->runFn($middlewares[$index], array_merge($arguments, array(
                 $index + 1,
             )));
+
             $this->runEvent('onmiddlewareexecute', array(
                 $this->request,
                 $index
             ));
-            $index++;
 
-            $this->runMiddleware($middlewares, $index, $arguments);
+            $this->runMiddleware($middlewares, $index + 1, $arguments);
         }
     }
 
@@ -922,7 +969,7 @@ class Dispatcher
             $this->response,
         ));
 
-        echo $body . '<br>';
+        echo $body;
     }
 
     /**
