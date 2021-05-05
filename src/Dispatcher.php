@@ -592,7 +592,6 @@ class Dispatcher
             $this->request,
         ));
 
-        $this->redirection();
         $this->sendBody($body);
         $this->terminate();
 
@@ -627,13 +626,16 @@ class Dispatcher
      * Redirect route to new route.
      * 
      * @param   string $location
-     * @return  $this
+     * @return  void
      */
     public function redirect(string $location)
     {
-        $this->redirect = $location;
+        $this->runEvent('onredirect', array(
+            $this->request,
+        ));
 
-        return $this;
+        header('location: ' . $location);
+        exit;
     }
 
     /**
@@ -715,27 +717,8 @@ class Dispatcher
 
         $this->runAfterMiddlewares();
         $this->setHeaders($this->headers);
-        $this->redirection();
         $this->sendBody($body);
         $this->terminate();
-    }
-
-    /**
-     * Check if redirection is requested.
-     * 
-     * @return  void
-     */
-    private function redirection()
-    {
-        if(!is_null($this->redirect))
-        {
-            $this->runEvent('onredirect', array(
-                $this->request,
-            ));
-
-            header('location: ' . $this->redirect);
-            exit;
-        }
     }
 
     /**
