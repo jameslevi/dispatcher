@@ -19,6 +19,13 @@ class Response
     private $body;
 
     /**
+     * Store response headers.
+     * 
+     * @var array
+     */
+    private $headers = array();
+
+    /**
      * Construct a new response object.
      * 
      * @param   \Graphite\Component\Dispatcher\Dispatcher $context
@@ -51,7 +58,10 @@ class Response
      */
     public function setHeader(string $key, string $content)
     {
-        $this->context->setHeader($key, $content);
+        $this->headers[] = array(
+            'key'        => $key,
+            'content'    => $content, 
+        );
 
         return $this;
     }
@@ -87,10 +97,7 @@ class Response
      */
     public function send(string $message)
     {
-        if(is_null($this->body))
-        {
-            $this->body = $message;
-        }
+        $this->body = $message;
 
         return $this;
     }
@@ -115,5 +122,15 @@ class Response
     public function getBody()
     {
         return $this->body;
+    }
+
+    /**
+     * Return response headers.
+     * 
+     * @return  array
+     */
+    public function getHeaders()
+    {
+        return $this->headers;
     }
 }

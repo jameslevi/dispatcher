@@ -611,7 +611,7 @@ class Dispatcher
             $this->request,
         ));
 
-        $this->setHeaders();
+        $this->setHeaders($this->headers);
         $this->sendBody($body);
         $this->terminate();
 
@@ -718,7 +718,8 @@ class Dispatcher
 
         $this->runMiddlewares();
         
-        $body = $this->runActions();
+        $body   = $this->runActions();
+        $header = null;
 
         $this->runEvent('onafteraction', array(
             $this->request,
@@ -728,9 +729,19 @@ class Dispatcher
         {
             $this->abort(500);
         }
+        else
+        {
+            $header = $body->getHeaders();
+            $body   = $body->getBody();
+        }
+
+        if(is_null($this->redirect) && (empty($body) || is_null($body) || $body == ''))
+        {
+            $this->abort(204);
+        }
 
         $this->runAfterMiddlewares();
-        $this->setHeaders();
+        $this->setHeaders($this->headers);
 
         if(!is_null($this->redirect))
         {
@@ -739,9 +750,10 @@ class Dispatcher
             ));
 
             header('location: ' . $this->redirect);
+            exit;
         }
 
-        $this->sendBody($body);
+        $this->sendBody($body, $header);
         $this->terminate();
     }
 
@@ -918,7 +930,6 @@ class Dispatcher
         $this->middleware = true;
         $this->runMiddleware($this->after_middlewares, 0, array(
             $this->request,
-            $this->response,
         ));
         $this->middleware = false;
     }
@@ -981,11 +992,12 @@ class Dispatcher
     /**
      * Set http response headers.
      * 
+     * @param   array $headers
      * @return  void
      */
-    private function setHeaders()
+    private function setHeaders(array $headers)
     {
-        foreach($this->headers as $header)
+        foreach($headers as $header)
         {
             header($header['key'] . ': ' . $header['content']);
         }
@@ -1011,24 +1023,20 @@ class Dispatcher
     /**
      * Send the response body to the users.
      * 
-     * @param   mixed $body
+     * @param   string $body
+     * @param   array $header
      * @return  void
      */
-    private function sendBody($body)
+    private function sendBody(string $body, array $header = [])
     {
         $this->runEvent('onbodysent', array(
             $this->request,
             $this->response,
         ));
 
-        if($body instanceof Response)
+        if(!empty($header))
         {
-            $body = $body->getBody();
-        }
-
-        if(empty($body) || is_null($body))
-        {
-            $this->abort(204);
+            $this->setHeaders($header);
         }
 
         echo $body;
