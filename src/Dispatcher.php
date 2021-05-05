@@ -104,13 +104,6 @@ class Dispatcher
     private $request;
 
     /**
-     * Store response object.
-     * 
-     * @var \Graphite\Component\Dispatcher\Response
-     */
-    private $response;
-
-    /**
      * HTTP status code.
      * 
      * @var int
@@ -214,7 +207,6 @@ class Dispatcher
     public function __construct()
     {
         $this->request  = new Request($this);
-        $this->response = new Response($this);
 
         $this->setDefaultErrorCallback(function($request) {
             return $request->responseMessage();
@@ -428,16 +420,6 @@ class Dispatcher
     }
 
     /**
-     * Return response object.
-     * 
-     * @return  \Graphite\Component\Dispatcher\Response
-     */
-    public function response()
-    {
-        return $this->response;
-    }
-
-    /**
      * Factory for registering route.
      * 
      * @param   string $uri
@@ -606,12 +588,12 @@ class Dispatcher
             ));
         }
 
-        $this->code = $code;
-        $body = $this->runFn($action, array(
+        $this->code     = $code;
+        $body           = $this->runFn($action, array(
             $this->request,
         ));
 
-        $this->setHeaders($this->headers);
+        $this->redirection();
         $this->sendBody($body);
         $this->terminate();
 
@@ -702,7 +684,10 @@ class Dispatcher
      */
     public function run()
     {
-        $this->runCreate();
+        $this->runEvent('oncreate', array(
+            $this->request,
+        ));
+
         $this->service();
         $this->testRequestMethod();
 
@@ -718,31 +703,26 @@ class Dispatcher
 
         $this->runMiddlewares();
         
-        $body   = $this->runActions();
-        $header = null;
+        $body = $this->runActions();
 
         $this->runEvent('onafteraction', array(
             $this->request,
         ));
 
-        if(!($body instanceof Response))
-        {
-            $this->abort(500);
-        }
-        else
-        {
-            $header = $body->getHeaders();
-            $body   = $body->getBody();
-        }
-
-        if(is_null($this->redirect) && (empty($body) || is_null($body) || $body == ''))
-        {
-            $this->abort(204);
-        }
-
         $this->runAfterMiddlewares();
         $this->setHeaders($this->headers);
+        $this->redirection();
+        $this->sendBody($body);
+        $this->terminate();
+    }
 
+    /**
+     * Check if redirection is requested.
+     * 
+     * @return  void
+     */
+    private function redirection()
+    {
         if(!is_null($this->redirect))
         {
             $this->runEvent('onredirect', array(
@@ -752,9 +732,6 @@ class Dispatcher
             header('location: ' . $this->redirect);
             exit;
         }
-
-        $this->sendBody($body, $header);
-        $this->terminate();
     }
 
     /**
@@ -876,18 +853,6 @@ class Dispatcher
     }
 
     /**
-     * Run create callback before route testing.
-     * 
-     * @return  void
-     */
-    private function runCreate()
-    {
-        $this->runEvent('oncreate', array(
-            $this->request,
-        ));
-    }
-
-    /**
      * Test if request method is supported or valid.
      * 
      * @return  void
@@ -910,6 +875,7 @@ class Dispatcher
     private function runMiddlewares()
     {
         $this->middleware = true;
+
         $this->runEvent('onbeforemiddleware', array(
             $this->request,
         ));
@@ -917,6 +883,7 @@ class Dispatcher
         $this->runMiddleware($this->middlewares, 0, array(
             $this->request,
         ));
+
         $this->middleware = false;
     }
 
@@ -977,14 +944,12 @@ class Dispatcher
         {
             return $this->runFn($this->closures[$route['hash']], array(
                 $this->request,
-                $this->response,
             ));
         }
         else
         {
             return $this->runFn($route['action'], array(
                 $this->request,
-                $this->response,
             ));
         }
     }
@@ -1023,20 +988,24 @@ class Dispatcher
     /**
      * Send the response body to the users.
      * 
-     * @param   string $body
-     * @param   array $header
+     * @param   mixed $body
      * @return  void
      */
-    private function sendBody(string $body, array $header = [])
+    private function sendBody($body)
     {
         $this->runEvent('onbodysent', array(
             $this->request,
-            $this->response,
         ));
 
-        if(!empty($header))
+        if(is_array($body))
         {
-            $this->setHeaders($header);
+            header('Content-Type: application/json');
+            $body = json_encode($body);
+        }
+
+        if(empty($body))
+        {
+            $this->abort(204);
         }
 
         echo $body;
@@ -1051,7 +1020,6 @@ class Dispatcher
     {
         $this->runEvent('ondestroy', array(
             $this->request,
-            $this->response,
         ));
 
         exit(0);

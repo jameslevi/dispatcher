@@ -57,6 +57,16 @@ class Request
     }
 
     /**
+     * Return router context.
+     * 
+     * @return \Graphite\Component\Dispatcher\Dispatcher
+     */
+    public function context()
+    {
+        return $this->context;
+    }
+
+    /**
      * Return http status response code.
      * 
      * @return  int
