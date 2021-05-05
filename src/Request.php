@@ -124,6 +124,16 @@ class Request
     }
 
     /**
+     * Return the current server protocol.
+     * 
+     * @return  string
+     */
+    public function protocol()
+    {
+        return $this->server->get('SERVER_PROTOCOL');
+    }
+
+    /**
      * Determine if request is through secure connection.
      * 
      * @return  bool
