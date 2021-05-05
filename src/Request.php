@@ -146,6 +146,16 @@ class Request
     }
 
     /**
+     * Determine if request is through XMLHttpRequest.
+     * 
+     * @return  bool
+     */
+    public function xmlHttpRequest()
+    {
+        return isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest';
+    }
+
+    /**
      * Return GET parameter value.
      * 
      * @param   string $key
