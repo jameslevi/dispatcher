@@ -199,7 +199,8 @@ class Request
         {
             $value = $this->raw->get($key);
         }
-        else
+
+        if(is_null($value))
         {
             $value = $default;
         }
