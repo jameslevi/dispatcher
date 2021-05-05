@@ -703,7 +703,7 @@ class Dispatcher
     public function run()
     {
         $this->runCreate();
-        $this->downService();
+        $this->service();
         $this->testRequestMethod();
 
         if(is_null($this->route))
@@ -724,6 +724,11 @@ class Dispatcher
             $this->request,
         ));
 
+        if(!($body instanceof Response))
+        {
+            $this->abort(500);
+        }
+
         $this->runAfterMiddlewares();
         $this->setHeaders();
 
@@ -741,11 +746,11 @@ class Dispatcher
     }
 
     /**
-     * Abort request and return service unavailable error.
+     * Check if service is available.
      * 
      * @return  void
      */
-    private function downService()
+    private function service()
     {
         if($this->unavailable)
         {
@@ -923,6 +928,7 @@ class Dispatcher
      * 
      * @param   array $middlewares
      * @param   int $index
+     * @param   array $arguments
      * @return  void
      */
     private function runMiddleware(array $middlewares, int $index, array $arguments)
@@ -1005,15 +1011,25 @@ class Dispatcher
     /**
      * Send the response body to the users.
      * 
-     * @param   string $body
+     * @param   mixed $body
      * @return  void
      */
-    private function sendBody(string $body)
+    private function sendBody($body)
     {
         $this->runEvent('onbodysent', array(
             $this->request,
             $this->response,
         ));
+
+        if($body instanceof Response)
+        {
+            $body = $body->getBody();
+        }
+
+        if(empty($body) || is_null($body))
+        {
+            $this->abort(204);
+        }
 
         echo $body;
     }
