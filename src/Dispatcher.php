@@ -164,6 +164,7 @@ class Dispatcher
         'onmiddlewareabort'         => null,
         'onbeforeaction'            => null,
         'onafteraction'             => null,
+        'onbeforeredirect'          => null,
         'onbodysent'                => null,
         'ondestroy'                 => null,
         'onerror'                   => null,
@@ -804,6 +805,9 @@ class Dispatcher
             $this->request,
         ));
 
+        $this->runMiddleware($this->middlewares, 0, array(
+            $this->request,
+        ));
         $this->middleware = false;
     }
 
@@ -815,12 +819,39 @@ class Dispatcher
     private function runAfterMiddlewares()
     {
         $this->middleware = true;
-
+        $this->runMiddleware($this->after_middlewares, 0, array(
+            $this->request,
+            $this->response,
+        ));
         $this->middleware = false;
     }
 
     /**
-     * Run route actions.
+     * Run middlewares one at a time.
+     * 
+     * @param   array $middlewares
+     * @param   int $index
+     * @return  void
+     */
+    private function runMiddleware(array $middlewares, int $index, array $arguments)
+    {
+        if($index < sizeof($middlewares))
+        {
+            $this->runFn($middlewares[$index], array_merge($arguments, array(
+                $index + 1,
+            )));
+            $this->runEvent('onmiddlewareexecute', array(
+                $this->request,
+                $index
+            ));
+            $index++;
+
+            $this->runMiddleware($middlewares, $index, $arguments);
+        }
+    }
+
+    /**
+     * Run route action closures or controller classes.
      * 
      * @return  string
      */
@@ -922,6 +953,7 @@ class Dispatcher
     /**
      * Set route data.
      * 
+     * @param   array $data
      * @return  void
      */
     public function setRouteData(array $data)
