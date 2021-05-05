@@ -705,6 +705,11 @@ class Dispatcher
         
         $body = $this->runActions();
 
+        if(empty($body) || is_null($body))
+        {
+            $this->abort(204);
+        }
+
         $this->runEvent('onafteraction', array(
             $this->request,
         ));
@@ -988,25 +993,14 @@ class Dispatcher
     /**
      * Send the response body to the users.
      * 
-     * @param   mixed $body
+     * @param   string $body
      * @return  void
      */
-    private function sendBody($body)
+    private function sendBody(string $body)
     {
         $this->runEvent('onbodysent', array(
             $this->request,
         ));
-
-        if(is_array($body))
-        {
-            header('Content-Type: application/json');
-            $body = json_encode($body);
-        }
-
-        if(empty($body))
-        {
-            $this->abort(204);
-        }
 
         echo $body;
     }
