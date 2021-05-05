@@ -263,27 +263,10 @@ You can redirect to a new route immediately.
 ```php
 $router->redirect("/new-route");
 ```
-You can call this function inside a class using the $request variable's "context" method.
-```php
-$router->get("/", function($request) {
-  
-    return $request->context()->redirect("/new-route");  
-});
-```
 ## Abort
 You can immediately terminate the request using "abort" method.
 ```php
 $router->abort(503); // Return "Service Unavailable" response.
-```
-You can call this function inside a class using the $request variable's "context" method.
-```php
-$router->get("/{username}", function($request) {
-
-    if($request->username === "abc")
-    {
-        $request->context()->abort(403);
-    }
-});
 ```
 ## Headers
 You can assign headers using the "setHeader" method.
