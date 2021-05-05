@@ -200,6 +200,13 @@ class Dispatcher
     private $redirect;
 
     /**
+     * Determine if service is available.
+     * 
+     * @var bool
+     */
+    private $unavailable = false;
+
+    /**
      * Construct a new instance of dispatcher.
      * 
      * @return  void
@@ -612,6 +619,30 @@ class Dispatcher
     }
 
     /**
+     * Set the service as unavailable.
+     * 
+     * @return  $this
+     */
+    public function down()
+    {
+        $this->unavailable = true;
+
+        return $this;
+    }
+
+    /**
+     * Set the service as available.
+     * 
+     * @return  $this
+     */
+    public function up()
+    {
+        $this->unavailable = false;
+
+        return $this;
+    }
+
+    /**
      * Redirect route to new route.
      * 
      * @param   string $location
@@ -672,6 +703,7 @@ class Dispatcher
     public function run()
     {
         $this->runCreate();
+        $this->downService();
         $this->testRequestMethod();
 
         if(is_null($this->route))
@@ -706,6 +738,19 @@ class Dispatcher
 
         $this->sendBody($body);
         $this->terminate();
+    }
+
+    /**
+     * Abort request and return service unavailable error.
+     * 
+     * @return  void
+     */
+    private function downService()
+    {
+        if($this->unavailable)
+        {
+            $this->abort(503);
+        }
     }
 
     /**
@@ -906,6 +951,7 @@ class Dispatcher
     {
         $route  = $this->route;
 
+        $this->code = 200;
         $this->runEvent('onbeforeaction', array(
             $this->request,
         ));
