@@ -205,10 +205,22 @@ class Dispatcher
     public function __construct()
     {
         $this->request  = new Request($this);
+        $that           = $this; 
 
-        $this->setDefaultErrorCallback(function($request) {
+        $this->setDefaultErrorCallback(function($request) use ($that) {
             return $request->responseMessage();
         });
+    }
+
+    /**
+     * Determine if provided callback is valid.
+     * 
+     * @param   mixed $callback
+     * @return  bool
+     */
+    private function isValidCallback($callback)
+    {
+        return (is_string($callback) && str_contains($callback, '@')) || ($callback instanceof Closure);
     }
 
     /**
@@ -219,7 +231,10 @@ class Dispatcher
      */
     public function onCreate($callback)
     {
-        $this->events['oncreate'] = $callback;
+        if($this->isValidCallback($callback))
+        {
+            $this->events['oncreate'] = $callback;
+        }
 
         return $this;
     }
@@ -232,7 +247,10 @@ class Dispatcher
      */
     public function onDestroy($callback)
     {
-        $this->events['ondestroy'] = $callback;
+        if($this->isValidCallback($callback))
+        {
+            $this->events['ondestroy'] = $callback;
+        }
 
         return $this;
     }
@@ -245,7 +263,10 @@ class Dispatcher
      */
     public function onError($callback)
     {
-        $this->events['onerror'] = $callback;
+        if($this->isValidCallback($callback))
+        {
+            $this->events['onerror'] = $callback;
+        }
 
         return $this;
     }
@@ -258,7 +279,10 @@ class Dispatcher
      */
     public function onRouteMatched($callback)
     {
-        $this->events['onroutematched'] = $callback;
+        if($this->isValidCallback($callback))
+        {
+            $this->events['onroutematched'] = $callback;
+        }
 
         return $this;
     }
@@ -271,7 +295,10 @@ class Dispatcher
      */
     public function onBeforeMiddleware($callback)
     {
-        $this->events['onbeforemiddleware'] = $callback;
+        if($this->isValidCallback($callback))
+        {
+            $this->events['onbeforemiddleware'] = $callback;
+        }
 
         return $this;
     }
@@ -284,7 +311,10 @@ class Dispatcher
      */
     public function onMiddleware($callback)
     {
-        $this->events['onmiddleware'] = $callback;
+        if($this->isValidCallback($callback))
+        {
+            $this->events['onmiddleware'] = $callback;
+        }
 
         return $this;
     }
@@ -297,7 +327,10 @@ class Dispatcher
      */
     public function onMiddlewareAbort($callback)
     {
-        $this->events['onmiddlewareabort'] = $callback;
+        if($this->isValidCallback($callback))
+        {
+            $this->events['onmiddlewareabort'] = $callback;
+        }
 
         return $this;
     }
@@ -310,7 +343,10 @@ class Dispatcher
      */
     public function onBeforeAction($callback)
     {
-        $this->events['onbeforeaction'] = $callback;
+        if($this->isValidCallback($callback))
+        {
+            $this->events['onbeforeaction'] = $callback;
+        }
 
         return $this;
     }
@@ -323,7 +359,10 @@ class Dispatcher
      */
     public function onAfterAction($callback)
     {
-        $this->events['onafteraction'] = $callback;
+        if($this->isValidCallback($callback))
+        {
+            $this->events['onafteraction'] = $callback;
+        }
 
         return $this;
     }
@@ -336,8 +375,11 @@ class Dispatcher
      */
     public function onBodySent($callback)
     {
-        $this->events['onbodysent'] = $callback;
-
+        if($this->isValidCallback($callback))
+        {
+            $this->events['onbodysent'] = $callback;
+        }
+            
         return $this;
     }
 
@@ -350,8 +392,11 @@ class Dispatcher
      */
     public function setErrorCallback(int $code, $callback)
     {
-        $this->callbacks['code_' . $code] = $callback;
-
+        if($this->isValidCallback($callback))
+        {
+            $this->callbacks['code_' . $code] = $callback;
+        }
+            
         return $this;
     }
 
@@ -363,7 +408,10 @@ class Dispatcher
      */
     public function setDefaultErrorCallback($callback)
     {
-        $this->default_callback = $callback;
+        if($this->isValidCallback($callback))
+        {
+            $this->default_callback = $callback;
+        }
 
         return $this;
     }
@@ -376,7 +424,10 @@ class Dispatcher
      */
     public function middleware($callback)
     {
-        $this->middlewares[] = $callback;
+        if($this->isValidCallback($callback))
+        {
+            $this->middlewares[] = $callback;
+        }
 
         return $this;
     }
@@ -389,7 +440,10 @@ class Dispatcher
      */
     public function afterMiddleware($callback)
     {
-        $this->after_middlewares[] = $callback;
+        if($this->isValidCallback($callback))
+        {
+            $this->after_middlewares[] = $callback;
+        }
 
         return $this;
     }
