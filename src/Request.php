@@ -135,7 +135,7 @@ class Request
     }
 
     /**
-     * return the request uri.
+     * Return the request uri.
      * 
      * @return  string
      */
@@ -155,7 +155,7 @@ class Request
     }
 
     /**
-     * Return the current server protocol.
+     * Return the server protocol.
      * 
      * @return  string
      */
@@ -177,7 +177,7 @@ class Request
     }
 
     /**
-     * Determine if request is through localhost.
+     * Determine if request is in localhost.
      * 
      * @return  bool
      */
@@ -187,7 +187,7 @@ class Request
     }
 
     /**
-     * Determine if request is through XMLHttpRequest.
+     * Determine if request is using XMLHttpRequest.
      * 
      * @return  bool
      */
