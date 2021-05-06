@@ -185,18 +185,18 @@ class Dispatcher
     private $middleware = false;
 
     /**
-     * Redirection route.
-     * 
-     * @var string
-     */
-    private $redirect;
-
-    /**
      * Determine if service is available.
      * 
      * @var bool
      */
     private $unavailable = false;
+
+    /**
+     * Request has no body.
+     * 
+     * @var bool
+     */
+    private $nobody = false;
 
     /**
      * Construct a new instance of dispatcher.
@@ -706,7 +706,12 @@ class Dispatcher
         
         $body = $this->runActions();
 
-        if(empty($body) || is_null($body))
+        if(strtolower($this->request->method()) == 'head')
+        {
+            $this->nobody = true;
+        }
+
+        if(!$this->nobody && (empty($body) || is_null($body)))
         {
             $this->abort(204);
         }
@@ -717,7 +722,12 @@ class Dispatcher
 
         $this->runAfterMiddlewares();
         $this->setHeaders($this->headers);
-        $this->sendBody($body);
+
+        if(!$this->nobody)
+        {
+            $this->sendBody($body);
+        }
+
         $this->terminate();
     }
 
@@ -787,6 +797,8 @@ class Dispatcher
 
         if(!empty($matches))
         {
+            $allowed = array();
+
             foreach($matches as $route)
             {
                 $verb       = $route['method'];
@@ -795,12 +807,28 @@ class Dispatcher
                 if(in_array($method, $methods) || $verb == '*')
                 {
                     $this->route = $route;
+                    $this->setHeader('Access-Control-Allow-Methods', strtoupper($method));
                     $this->runEvent('onroutematched', array(
                         $this->request,
                     ));
 
                     return;
                 }
+
+                foreach($methods as $item)
+                {
+                    if(!in_array($item, $allowed))
+                    {
+                        $allowed[] = strtoupper($item);
+                    }
+                }
+            }
+
+            if($method === 'head')
+            {
+                $this->setHeader('Access-Control-Allow-Methods', implode(', ', $allowed));
+                $this->setHeader('Content-Length', '0');
+                return;
             }
 
             $this->abort(405);
