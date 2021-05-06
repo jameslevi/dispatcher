@@ -94,13 +94,16 @@ $router->patch("/members/{id}", function($request) {});
 ```php
 $router->delete("/members/{id}", function($request) {});
 ```
-**ANY** - Route that can use any request method.
+**HEAD** - Request method identical to GET method but has no body.
+
+## Multiple Method Support
+**Any** - Route that can use any request method.
 ```php
 $router->any("/dashboard", function($request) {});
 ```
-**MATCH** - Multiple request method support.
+**Match** - Multiple request method support.
 ```php
-$router->match(["put", "patch"], "/member/{id}", function($request) {});
+$router->match(array("put", "patch"), "/member/{id}", function($request) {});
 ```
 
 ## Event Callbacks
@@ -187,6 +190,7 @@ class TestMiddleware {
     public function handle($request) {
     
     }
+    
 }
 ```
 You can now use this class as your middleware.
@@ -199,7 +203,7 @@ You can also implement multiple middlewares after doing the route action.
 $router->afterMiddleware('App\Middleware\TestMiddleware@handle');
 ```
 ## Actions
-Things needed to be accomplished in each requests. The return data will be used as response body.
+This are things you wish to accomplish in each request.
 ```php
 $router->get("/", function($request) {
 
@@ -224,13 +228,11 @@ class MyController {
     
         return "About Us";
     }
+    
 }
 ```
 ```php
-// Route that will call the home method.
 $router->get("/home", "App\Controller\MyController@home");
-
-// Route that will call the aboutUs method.
 $router->get("/about-us", "App\Controller\MyController@aboutUs");
 ```
 ## GET Parameters
@@ -238,8 +240,7 @@ You can access all the GET parameters using the get method from the request obje
 ```php
 $router->get("/members", function($request) {
 
-    // This will get the value of GET parameter "per_page" if existing, if not return a value of 10.
-    return $request->get("per_page", 10);
+    return $request->get("per_page");
 });
 ```
 ## POST, PUT, PATCH, DELETE Parameters
