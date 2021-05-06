@@ -274,6 +274,36 @@ You can also down individual routes.
 ```php
 $router->get('/dashboard', 'App\Controller\MyController@dashboard')->down();
 ```
+## Request Helpers
+**Method** - Return the request method used during the request.
+```php
+$request->method();
+```
+**URI** - Return the current request uri excluding the query string.
+```php
+$request->uri();
+```
+**Port** - Return the server port number.
+```php
+$request->port();
+```
+**Protocol** - Return the server protocol.
+```php
+$request->protocol();
+```
+**Secure** - Determine if request is through secure connection.
+```php
+$request->secure();
+```
+**Localhost** - Determine if request is in localhost.
+```php
+$request->localhost();
+```
+**XMLHttpRequest** - Determine if request is using XMLHttpRequest.
+```php
+$request->xmlHttpRequest();
+```
+
 ## Contribution
 For issues, concerns and suggestions, you can email James Crisostomo via nerdlabenterprise@gmail.com.
 
