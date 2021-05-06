@@ -131,10 +131,6 @@ $router->onBeforeAction(function($request) {});
 ```php
 $router->onAfterAction(function($request) {});
 ```
-**Redirect** - Triggered when redirection is called.
-```php
-$router->onRedirect(function($request) {});
-```
 **Body Sent** - Triggered when the response body was sent.
 ```php
 $router->onBodySent(function($request) {});
@@ -259,12 +255,7 @@ $router->get("/members/{member_id}", function($request) {
     return $request->member_id;
 });
 ```
-## Redirection
-You can redirect to a new route immediately.
-```php
-$router->redirect("/new-route");
-```
-## Abort
+## Forced Abort
 You can immediately terminate the request using "abort" method.
 ```php
 $router->abort(503); // Return "Service Unavailable" response.
@@ -278,6 +269,10 @@ $router->setHeader("Content-Type", "application/json");
 You can down the service availability using the "down" method.
 ```php
 $router->down();
+```
+You can also down individual routes.
+```php
+$router->get('/dashboard', 'App\Controller\MyController@dashboard')->down();
 ```
 ## Contribution
 For issues, concerns and suggestions, you can email James Crisostomo via nerdlabenterprise@gmail.com.
