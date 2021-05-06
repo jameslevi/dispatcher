@@ -428,24 +428,16 @@ class Dispatcher
      */
     private function makeRoute(string $uri, $method, $action)
     {
-        $closure    = ($action instanceof Closure);
-        $hash       = md5(str_random());
+        $route = new Route($uri, $method, $action);
 
-        if($closure)
+        if($route->get('closure'))
         {
-            $this->closures[$hash] = $action;
+            $this->closures[$route->get('hash')] = $action;
         }
-        
-        self::$routes[] = array(
-            'hash'      => $hash,
-            'uri'       => $uri,
-            'method'    => $method,
-            'action'    => !$closure ? $action : null,
-            'closure'   => $closure,
-            'resource'  => array(),
-        );
+    
+        self::$routes[] = $route;
 
-        return $this;
+        return $route;
     }
 
     /**
@@ -689,7 +681,6 @@ class Dispatcher
             $this->request,
         ));
 
-        $this->service();
         $this->testRequestMethod();
 
         if(is_null($this->route))
@@ -702,6 +693,7 @@ class Dispatcher
             $this->findRoutes();
         }
 
+        $this->service();
         $this->runMiddlewares();
         
         $body = $this->runActions();
@@ -738,7 +730,7 @@ class Dispatcher
      */
     private function service()
     {
-        if($this->unavailable)
+        if($this->unavailable || (!is_null($this->route) && $this->route['unavailable']))
         {
             $this->abort(503);
         }
@@ -758,7 +750,7 @@ class Dispatcher
         for($i = 0; $i <= count(self::$routes) - 1; $i++)
         {
             $params     = array();
-            $route      = self::$routes[$i];
+            $route      = self::$routes[$i]->getData();
             $uri2       = $this->splitUri($route['uri']);
             $count      = 0;
 
