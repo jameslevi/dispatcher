@@ -156,7 +156,6 @@ class Dispatcher
         'onmiddlewareabort'         => null,
         'onbeforeaction'            => null,
         'onafteraction'             => null,
-        'onredirect'                => null,
         'onbodysent'                => null,
         'ondestroy'                 => null,
         'onerror'                   => null,
@@ -325,19 +324,6 @@ class Dispatcher
     public function onAfterAction($callback)
     {
         $this->events['onafteraction'] = $callback;
-
-        return $this;
-    }
-
-    /**
-     * Event callback when redirection is triggered.
-     * 
-     * @param   mixed $callback
-     * @return  $this
-     */
-    public function onRedirect($callback)
-    {
-        $this->events['onredirect'] = $callback;
 
         return $this;
     }
@@ -562,6 +548,8 @@ class Dispatcher
             ));
         }
 
+        $this->code = $code;
+
         if($code !== 200)
         {
             $callback   = 'code_' . $code;
@@ -579,8 +567,7 @@ class Dispatcher
             ));
         }
 
-        $this->code     = $code;
-        $body           = $this->runFn($action, array(
+        $body = $this->runFn($action, array(
             $this->request,
         ));
 
@@ -612,22 +599,6 @@ class Dispatcher
         $this->unavailable = false;
 
         return $this;
-    }
-
-    /**
-     * Redirect route to new route.
-     * 
-     * @param   string $location
-     * @return  void
-     */
-    public function redirect(string $location)
-    {
-        $this->runEvent('onredirect', array(
-            $this->request,
-        ));
-
-        header('location: ' . $location);
-        exit;
     }
 
     /**
@@ -1050,6 +1021,16 @@ class Dispatcher
     public static function supportedVerbs()
     {
         return self::$supported_verbs;
+    }
+
+    /**
+     * Return list of supported http response code.
+     * 
+     * @return  array
+     */
+    public static function getSupportedResponseCodes()
+    {
+        return self::$supported_codes;
     }
 
     /**
