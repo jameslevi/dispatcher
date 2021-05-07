@@ -212,7 +212,7 @@ class Request
             $value = $default;
         }
 
-        return $value;
+        return urldecode($value);
     }
 
     /**
@@ -236,6 +236,6 @@ class Request
             $value = $default;
         }
 
-        return $value;
+        return urldecode($value);
     }
 }
