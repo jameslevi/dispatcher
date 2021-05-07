@@ -193,7 +193,7 @@ class Request
      */
     public function xmlHttpRequest()
     {
-        return isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest';
+        return !is_null($this->server->get('HTTP_X_REQUESTED_WITH')) && $this->server->get('HTTP_X_REQUESTED_WITH') === 'XMLHttpRequest';
     }
 
     /**
