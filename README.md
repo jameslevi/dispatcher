@@ -17,12 +17,7 @@ composer require jameslevi/dispatcher
 ```
 2. Add the composer autoload mechanism if not using any framework.
 ```php
-<?php
-
-if(file_exists(__DIR__.'/vendor/autoload.php'))
-{
-    require __DIR__.'/vendor/autoload.php';
-}
+require_once __DIR__.'/vendor/autoload.php';
 ```
 
 ## Basic Implementation
