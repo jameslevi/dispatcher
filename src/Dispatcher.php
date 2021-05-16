@@ -7,13 +7,6 @@ use Closure;
 class Dispatcher
 {
     /**
-     * Current release version.
-     * 
-     * @var string
-     */
-    private static $version = '1.0.0';
-
-    /**
      * Supported request methods.
      * 
      * @var array
@@ -1094,6 +1087,6 @@ class Dispatcher
      */
     public static function version()
     {
-        return self::$version;
+        return 'Dispatcher version 1.0.1';
     }
 }
